@@ -9,7 +9,7 @@ import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class TaskAdapter(private val tasks: MutableList<String>, private val saveTasks: () -> Unit) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
+class TaskAdapter(private val tasks: MutableList<Task>, private val saveTasks: () -> Unit) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val checkBoxTask: CheckBox = itemView.findViewById(R.id.checkBoxTask)
@@ -24,16 +24,23 @@ class TaskAdapter(private val tasks: MutableList<String>, private val saveTasks:
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val task = tasks[position]
-        holder.textViewTask.text = task
-        holder.checkBoxTask.isChecked = false
-        holder.textViewTask.paintFlags = holder.textViewTask.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+        holder.textViewTask.text = task.text
+        holder.checkBoxTask.isChecked = task.isCompleted
+
+        if (task.isCompleted) {
+            holder.textViewTask.paintFlags = holder.textViewTask.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+        } else {
+            holder.textViewTask.paintFlags = holder.textViewTask.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+        }
 
         holder.checkBoxTask.setOnCheckedChangeListener { _, isChecked ->
+            task.isCompleted = isChecked
             if (isChecked) {
                 holder.textViewTask.paintFlags = holder.textViewTask.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             } else {
                 holder.textViewTask.paintFlags = holder.textViewTask.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
             }
+            saveTasks()
         }
 
         holder.buttonDeleteTask.setOnClickListener {
